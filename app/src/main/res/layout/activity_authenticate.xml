@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ./app/src/main/res/layout/activity_authenticate.xml -->
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -11,38 +12,41 @@
 	tools:context=".MainActivity"
 	>
 
-  <!-- Overview of the last payments.-->
+  <!-- Create a new session for a new user, isnert token., etc...-->
 
 	<TextView
-		android:id="@+id/title"
-		android:text="@string/title"
+		android:id="@+id/authenticate_title"
+		android:text="@string/authenticate_title"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:textSize="35sp"
 		/>
 
-	<TextView
-		android:id="@+id/description"
+	<EditView
+		android:id="@+id/authenticate_token"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginVertical="20sp"
-		android:text="Hello ${user}, here you see your latest payments. You also can make a new payment here."
+    android:hint="@string/authenticate_token_hint"
+		android:layout_marginTop="20sp"
+		/>
+
+	<EditView
+		android:id="@+id/authenticate_name"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginVertical="20sp"
+    android:hint="@string/authenticate_name_hint"
 		android:layout_marginTop="20sp"
 		/>
 
 	<Button
-		android:id="@+id/new_payment"
+		android:id="@+id/authenticate_confirm"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginBottom="20sp"
-		android:text="Make a new Payment / TODO"
-		/>
-
-	<ListView
-		android:id="@+id/list_payments"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginBottom="20sp"
+    android:text="@string/authenticate_confirm"
 		/>
 
 </LinearLayout>
+

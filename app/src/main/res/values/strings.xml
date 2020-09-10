@@ -1,5 +1,17 @@
 <resources>
 	<string name="app_name">Nox\' Simple Bunq App</string>
-	<string name="title">This is Nox\' bunq assignment</string>
+	<string name="title">Nox\' bunq assignment</string>
+
+  <string name="new_payment_title">Hey ${sender.name}, make a new payment</string>
+	<string name="new_payment_receiver_hint">Receiver</string>
+	<string name="new_payment_iban_hint">Their IBAN</string>
+	<string name="new_payment_text_hint">Add some nice words or a reason!</string>
+	<string name="new_payment_amount_hint">The amount to pay (in cents).</string>
+	<string name="new_payment_confirm">Confirm</string>
+
+  <string name="authenticate_title">Authenticate</string>
+  <string name="authenticate_token_hint">What\'s your token?</string>
+  <string name="authenticate_name_hint">How do you want to be called?</string>
+  <string name="authenticate_confirm">Start!</string>
 
 </resources>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ./app/src/main/res/layout/activity_new_payment.xml -->
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:animateLayoutChanges="true"
+	android:padding="10sp"
+	android:orientation="vertical"
+	tools:context=".NewPaymentActivity"
+	>
+
+  <!-- Make a new payment for this session/ user. -->
+
+	<TextView
+		android:id="@+id/new_payment_title"
+		android:text="@string/new_payment_title"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:textSize="35sp"
+		/>
+
+	<EditText
+		android:id="@+id/new_payment_receiver"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginVertical="20sp"
+    android:hint="@string/new_payment_receiver_hint"
+		android:layout_marginTop="20sp"
+		/>
+
+	<EditText
+		android:id="@+id/new_payment_iban"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginVertical="20sp"
+    android:hint="@string/new_payment_iban_hint"
+		android:layout_marginTop="0sp"
+		/>
+
+	<EditText
+		android:id="@+id/new_payment_amount"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginVertical="20sp"
+    android:hint="@string/new_payment_amount_hint"
+		android:layout_marginTop="20sp"
+		android:inputType="number"
+		/>
+
+
+	<EditText
+		android:id="@+id/new_payment_text"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginVertical="20sp"
+    android:hint="@string/new_payment_text_hint"
+		android:layout_marginTop="20sp"
+		android:inputType="textMultiLine"
+		android:lines="5"
+		/>
+
+	<Button
+		android:id="@+id/new_payment_confirm"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_marginBottom="20sp"
+    android:text="@string/new_payment_confirm"
+		/>
+
+</LinearLayout>

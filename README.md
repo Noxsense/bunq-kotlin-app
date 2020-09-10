@@ -33,3 +33,12 @@ and installed with
 ```
 ./gradlew installDebug
 ```
+
+### Tools and templates used in this project
+|Tool / Template| Version |
+|---|---|
+| template: | **<https://github.com/cortinico/kotlin-android-template>**|
+| test phone: |`Google Pixel 3a`|
+| gradle: | `7.0`|
+|./gradlew: | `6.6.1`|
+| editor: | `NVIM v0.4.4`|

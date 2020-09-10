@@ -21,7 +21,6 @@ subprojects {
     apply {
         plugin("org.jlleitschuh.gradle.ktlint")
     }
-    // apply plugin "org.jlleitschuh.gradle.ktlint"
 
     ktlint {
         debug.set(false)
