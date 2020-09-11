@@ -39,6 +39,8 @@ android {
 dependencies {
     implementation(kotlin("stdlib-jdk7"))
 
+    implementation("xerces:xercesImpl:2.12.0")
+
     // "install" the bunq java sdk
     // Duplicate class X.Y.Z found in modules jetified-jakarta.activation-1.2.2.jar (com.sun.activation:jakarta.activation:1.2.2) and jetified-javax.activation-api-1.2.0.jar (javax.activation:javax.activation-api:1.2.0)
     // Duplicate class X.Y.Z found in modules jetified-jakarta.xml.bind-api-2.3.3.jar (jakarta.xml.bind:jakarta.xml.bind-api:2.3.3) and jetified-jaxb-api-2.3.1.jar (javax.xml.bind:jaxb-api:2.3.1)

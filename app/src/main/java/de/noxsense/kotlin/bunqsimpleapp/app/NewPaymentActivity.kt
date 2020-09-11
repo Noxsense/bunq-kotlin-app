@@ -1,30 +1,32 @@
 package de.noxsense.kotlin.bunqsimpleapp.app
 
+import com.bunq.sdk.context.ApiContext
+import com.bunq.sdk.context.BunqContext
+import com.bunq.sdk.exception.BunqException
+import com.bunq.sdk.model.generated.`object`.Amount
+import com.bunq.sdk.model.generated.`object`.Pointer
+import com.bunq.sdk.model.generated.endpoint.Payment
+import com.bunq.sdk.model.generated.endpoint.SandboxUser
+
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-
-import de.noxsense.kotlin.bunqsimpleapp.library.User
-import de.noxsense.kotlin.bunqsimpleapp.library.Payment
 
 import kotlinx.android.synthetic.main.activity_new_payment.*
 
 class NewPaymentActivity : AppCompatActivity() {
 
+	private val TAG = "Nox-Bunq-NewPaymentActivity"
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_new_payment)
 
+		Log.d(TAG, "Opened new Acitivity.")
+
 		val bundle: Bundle = intent.extras!!
-
-		val accessPoint : String? = bundle.getString("access_point")
-
-		/* Get the user. */
-		val sender = User(
-			bundle.getString("user.iban") ?: "DE 0 0 0 0 0",
-			bundle.getString("user.name") ?: "Sender")
 
 		new_payment_title.text = getString(R.string.new_payment_title)
 
@@ -32,44 +34,46 @@ class NewPaymentActivity : AppCompatActivity() {
 		 * On success: "Back" to overview.
 		 * On fail: Stay and make hints.  */
 		new_payment_confirm.setOnClickListener {
+			Log.d(TAG, "Confirmed payment entries.")
 			new_payment_title.text = "confirmed"
 
-			/* Get Data for the payment. */
-			val paymentTodo = getPaymentTodo(sender)
+			// fetch inserted data.
+			Log.d(TAG, "Fetch the inserted data.")
+
+			// make the payment with the API.
+			try {
+				Log.d(TAG, "Try to make the payment.")
+				val apiContext = ApiContext.restore(MainActivity.confFile)
+				BunqContext.loadApiContext(apiContext)
+
+				Payment.create(
+					Amount("0.01", "EUR"),
+					Pointer("EMAIL", "noxsense@gmail.com"),
+					"Test Payment from Nox' Lil' Bunq App"
+					)
+			} catch (e: Exception) {
+				Log.e(TAG, e.toString())
+				if (e is BunqException) {
+				} else {
+				}
+			}
 
 			/* Send payment. */
-			if (paymentTodo.send()) {
+			if (true) {
+				Log.d(TAG, "Back to Bunq-MainActivity.")
 				// Success -> Return to Main.
 				Toast.makeText(this, "Payment suceeded.", Toast.LENGTH_LONG).show()
-				backToOverview(sender, accessPoint!!)
+				backToOverview()
 			} else {
 				// hint possible errors.
+				Log.d(TAG, "Stay to correct inserted data.")
 				Toast.makeText(this, "Payment failed", Toast.LENGTH_LONG).show()
 			}
 		}
 	}
 
-	private fun getPaymentTodo(sender: User) : Payment {
-		val receiver = User(
-			new_payment_iban.text.toString(),
-			new_payment_receiver.text.toString())
-
-		val amount = try {
-			new_payment_amount.text.toString().toInt()
-		} catch (e: NumberFormatException) {
-			0
-		}
-
-		val text = new_payment_text.text.toString()
-
-		return Payment(sender, receiver, amount, text)
-	}
-
-	private fun backToOverview(user: User, accessPoint: String) {
+	private fun backToOverview() {
 		val intent = Intent(this, MainActivity::class.java)
-		intent.putExtra("user.iban", user.iban)
-		intent.putExtra("user.name", user.name)
-		intent.putExtra("user.api", accessPoint)
 		startActivity(intent)
 	}
 }
