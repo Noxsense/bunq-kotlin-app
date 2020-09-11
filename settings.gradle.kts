@@ -21,6 +21,5 @@ rootProject.name = ("nox-bunq-simpleapp")
 
 include(
     "app",
-    "library-android",
     "library-kotlin"
 )

@@ -32,30 +32,16 @@ import androidx.appcompat.app.AppCompatActivity
 
 import kotlinx.coroutines.*
 
-import de.noxsense.kotlin.bunqsimpleapp.library.android.NotificationUtil
-
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-	private val notificationUtil: NotificationUtil by lazy { NotificationUtil(this) }
-
+	private val confFile = "bunq-sandbox.conf"
 	private var user : User? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
-
-		var userApi: String? = "01234567"
-
-		/* Login with Access Point. */
-		if (userApi == null) {
-			notificationUtil.showNotification(
-				context = this,
-				title = "Login Error",
-				message = "No Access Point given.")
-			return
-		}
 
 		try {
 			// android.os.NetworkOnMainThreadException
@@ -71,14 +57,15 @@ class MainActivity : AppCompatActivity() {
 			listUserPayments()
 
 		} catch (e : Exception) {
-			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+			toast(e.toString(), Toast.LENGTH_LONG)
 		}
 
 
 		/* Option to make a new payment. */
 		new_payment.setOnClickListener {
 
-			// newPayment(user!!, userApi)
+			newPayment()
+
 			try {
 
 				// tryout payment creation.
@@ -88,7 +75,7 @@ class MainActivity : AppCompatActivity() {
 					"Test Payment from Nox' Lil' Bunq App"
 					)
 			} catch (e : Exception) {
-				Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
+				toast(e.toString(), Toast.LENGTH_LONG)
 			}
 		}
 	}
@@ -110,18 +97,12 @@ class MainActivity : AppCompatActivity() {
 				payments)
 
 		list_payments.setAdapter(adapter)
-		list_payments.setOnItemClickListener { _ , view, position, id ->
-			Toast.makeText(
-					this,
-					"Show payment ${payments[position]}",
-					Toast.LENGTH_LONG
-				).show()
+		list_payments.setOnItemClickListener { _ , _, position, _ ->
+			toast("Show payment ${payments[position]}", Toast.LENGTH_LONG)
 		}
 	}
 
 	fun setupContext() : ApiContext {
-		val confFile = "bunq-sandbox.conf"
-
 		if (File(confFile).exists()) {
 		} else {
 			var bytes : ByteArray = ByteArray(0)
@@ -157,7 +138,7 @@ class MainActivity : AppCompatActivity() {
 						ApiEnvironmentType.SANDBOX,
 						sandboxuser.getApiKey(),
 						"Nox Bunq ?" /* device description */ )
-					.save(confFile)
+					.save(confFile) // store.
 
 				// psd2 context.
 				/*
@@ -183,11 +164,24 @@ class MainActivity : AppCompatActivity() {
 		return apiContext
 	}
 
-	protected fun newPayment(user: User, userApi: String) {
+	protected fun newPayment() {
+		/* Abort making a new payment. */
+		if (!File(confFile).exists()) {
+			toast("No API Context active", Toast.LENGTH_LONG)
+			return
+		}
+
+		var apiContext = ApiContext.restore(confFile)
+		apiContext.ensureSessionActive()
+		BunqContext.loadApiContext(apiContext)
+
 		intent = Intent(this@MainActivity, NewPaymentActivity::class.java)
-		// intent.putExtra("user.iban", user.iban)
-		// intent.putExtra("user.name", user.name)
-		// intent.putExtra("access_point", userApi)
+		// store again the BunqContext
+
 		startActivity(intent)
+	}
+
+	protected fun toast(msg: Any?, duration: Int) {
+		Toast.makeText(this, "${msg}", duration).show()
 	}
 }

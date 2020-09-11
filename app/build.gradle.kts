@@ -55,7 +55,6 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.8.5")
 
-    implementation(project(":library-android"))
     implementation(project(":library-kotlin"))
 
     implementation(SupportLibs.ANDROIDX_APPCOMPAT)

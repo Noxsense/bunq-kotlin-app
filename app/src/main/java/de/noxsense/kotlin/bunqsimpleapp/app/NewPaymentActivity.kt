@@ -8,13 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 
 import de.noxsense.kotlin.bunqsimpleapp.library.User
 import de.noxsense.kotlin.bunqsimpleapp.library.Payment
-import de.noxsense.kotlin.bunqsimpleapp.library.android.NotificationUtil
 
 import kotlinx.android.synthetic.main.activity_new_payment.*
 
 class NewPaymentActivity : AppCompatActivity() {
-
-	private val notificationUtil: NotificationUtil by lazy { NotificationUtil(this) }
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
