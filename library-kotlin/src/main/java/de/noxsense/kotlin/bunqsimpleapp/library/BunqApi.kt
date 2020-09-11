@@ -1,5 +1,34 @@
 package de.noxsense.kotlin.bunqsimpleapp.library
 
+/** BunqAPI.
+  * according to their official documentations.
+  * @url https://github.com/bunq/doc/blob/develop/README.md
+  */
+
+// data class User;
+// - userPerson with /user-person
+// - userCompany with /user-company
+// - userPaymentServiceProvider with /user-payment-service-provider
+// - userId on GET /user
+// can create bank accounts, order cards, make payments
+
+// data class MonetaryAccount;
+// - holder of money, linked to legal bank account owner
+// - most API counts with payments need monetary-accountId
+// - GET /user/userId/monetary-account
+// - three types:
+// 1. MonetaryAccountBank /user/userId/monetary-account-bank (classical single bank)
+// 2. MonetaryAccountSavings /user/userId/monetary-account-savings (auto-saving account)
+// 3. MonetaryAccountJoint /user/userId/monetary-account-joint (shared with other users)
+
+// data class Payment;
+// - in and outcoming
+
+// data class RequestInquiry;
+// data class Card;
+// data class Attachment;
+// data class NoteAttachment;
+
 data class User(val iban: String, var name: String) {
 
 	/** List of payemts. If timestamp is zero, the payment is not send. */

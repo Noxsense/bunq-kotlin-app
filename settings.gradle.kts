@@ -17,7 +17,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = ("kotlin-android-template")
+rootProject.name = ("nox-bunq-simpleapp")
 
 include(
     "app",

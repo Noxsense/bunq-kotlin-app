@@ -3,6 +3,7 @@ package de.noxsense.kotlin.bunqsimpleapp.app
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 import de.noxsense.kotlin.bunqsimpleapp.library.User
@@ -42,16 +43,11 @@ class NewPaymentActivity : AppCompatActivity() {
 			/* Send payment. */
 			if (paymentTodo.send()) {
 				// Success -> Return to Main.
-				notificationUtil.showNotification(
-					context = this,
-					title = "Payment successfully sent.",
-					message = "${paymentTodo}"
-				)
-				new_payment_title.text = "Done."
+				Toast.makeText(this, "Payment suceeded.", Toast.LENGTH_LONG).show()
 				backToOverview(sender, accessPoint!!)
 			} else {
 				// hint possible errors.
-				new_payment_title.text = "Failed."
+				Toast.makeText(this, "Payment failed", Toast.LENGTH_LONG).show()
 			}
 		}
 	}

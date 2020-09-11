@@ -1,5 +1,5 @@
 <resources>
-	<string name="app_name">Nox\' Simple Bunq App</string>
+	<string name="app_name">Nox\' Lil\' Bunq App</string>
 	<string name="title">Nox\' bunq assignment</string>
 
   <string name="new_payment_title">Hey ${sender.name}, make a new payment</string>
