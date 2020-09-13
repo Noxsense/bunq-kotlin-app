@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+// get first money as sandbox user.
 <!-- ./app/src/main/res/layout/activity_new_payment.xml -->
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
@@ -22,41 +23,64 @@
 		android:textSize="35sp"
 		/>
 
+  <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    tools:context=".NewPaymentActivity"
+    android:id="@+id/new_payment_pointer"
+    >
+    <!-- The alias type, can be: EMAIL|PHONE_NUMBER|IBAN. -->
+    <Spinner
+      android:id="@+id/new_payment_pointer_type"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      />
+    <EditText
+      android:id="@+id/new_payment_pointer_value"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:hint="@string/new_payment_hint_pointer_value"
+      />
+  </LinearLayout>
+
+  <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    tools:context=".NewPaymentActivity"
+    android:id="@+id/new_payment_pointer"
+    >
+    <!-- The alias type, can be: EMAIL|PHONE_NUMBER|IBAN. -->
+    <Spinner
+      android:id="@+id/new_payment_amount_currency"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      />
+    <EditText
+      android:id="@+id/new_payment_amount"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginVertical="20sp"
+      android:hint="@string/new_payment_hint_amount"
+      android:layout_marginTop="20sp"
+      android:inputType="number"
+      />
+  </LinearLayout>
+
+
 	<EditText
-		android:id="@+id/new_payment_receiver"
+		android:id="@+id/new_payment_description"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginVertical="20sp"
-    android:hint="@string/new_payment_receiver_hint"
-		android:layout_marginTop="20sp"
-		/>
-
-	<EditText
-		android:id="@+id/new_payment_iban"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginVertical="20sp"
-    android:hint="@string/new_payment_iban_hint"
-		android:layout_marginTop="0sp"
-		/>
-
-	<EditText
-		android:id="@+id/new_payment_amount"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginVertical="20sp"
-    android:hint="@string/new_payment_amount_hint"
-		android:layout_marginTop="20sp"
-		android:inputType="number"
-		/>
-
-
-	<EditText
-		android:id="@+id/new_payment_text"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginVertical="20sp"
-    android:hint="@string/new_payment_text_hint"
+    android:hint="@string/new_payment_hint_description"
 		android:layout_marginTop="20sp"
 		android:inputType="textMultiLine"
 		android:lines="5"
@@ -65,9 +89,18 @@
 	<Button
 		android:id="@+id/new_payment_confirm"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
+		android:layout_height="wrap_content"
 		android:layout_marginBottom="20sp"
     android:text="@string/new_payment_confirm"
+		/>
+
+	<TextView
+		android:id="@+id/new_payment_error"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:textSize="10sp"
+		android:textColor="#fa0000"
+		android:visibility="invisible"
 		/>
 
 </LinearLayout>
