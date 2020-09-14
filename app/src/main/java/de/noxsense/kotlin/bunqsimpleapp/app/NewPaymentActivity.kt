@@ -1,6 +1,5 @@
 package de.noxsense.kotlin.bunqsimpleapp.app
 
-import com.bunq.sdk.context.ApiContext
 import com.bunq.sdk.context.BunqContext
 import com.bunq.sdk.exception.ApiException
 import com.bunq.sdk.exception.BunqException
@@ -8,7 +7,6 @@ import com.bunq.sdk.model.generated.`object`.Amount
 import com.bunq.sdk.model.generated.`object`.Pointer
 import com.bunq.sdk.model.generated.endpoint.Payment
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -16,7 +14,9 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 
 import kotlinx.android.synthetic.main.activity_new_payment.*
 
@@ -30,28 +30,27 @@ class NewPaymentActivity : AppCompatActivity() {
 
 		Log.d(TAG, "Opened new Acitivity.")
 
+		val simpleSpinner = android.R.layout.simple_spinner_item
+		val simpleDropDown = android.R.layout.simple_spinner_dropdown_item
+
 		new_payment_title.text = getString(R.string.new_payment_title)
 
-		ArrayAdapter.createFromResource(
-			this,
-			R.array.new_payment_pointer_type_items,
-			android.R.layout.simple_spinner_item
-		).also {
-			it.setDropDownViewResource(
-				android.R.layout.simple_spinner_dropdown_item)
-			new_payment_pointer_type.adapter = it
-		}
+		ArrayAdapter
+			.createFromResource(
+				this, R.array.new_payment_pointer_type_items, simpleSpinner)
+			.also {
+				it.setDropDownViewResource(simpleDropDown)
+				new_payment_pointer_type.adapter = it
+			}
 
-		ArrayAdapter.createFromResource(
-			this,
-			R.array.currency_codes_ISO_4217,
-			android.R.layout.simple_spinner_item
-		).also {
-			it.setDropDownViewResource(
-				android.R.layout.simple_spinner_dropdown_item)
-			new_payment_amount_currency.adapter = it
-			new_payment_amount_currency.setSelection(48)
-		}
+		ArrayAdapter
+			.createFromResource(
+				this, R.array.currency_codes_ISO_4217, simpleSpinner)
+			.also {
+				it.setDropDownViewResource(simpleDropDown)
+				new_payment_amount_currency.adapter = it
+				new_payment_amount_currency.setSelection(48) // EUR
+			}
 
 		/* Confirm the inserted data.
 		 * On success: "Back" to overview.
@@ -78,12 +77,6 @@ class NewPaymentActivity : AppCompatActivity() {
 							pointerType, pointerValue,
 							currency, amount,
 							description)
-
-						Log.d(TAG, "Store to Context.")
-						val apiContext = BunqContext.getApiContext()
-						MainActivity.storeContext(this@NewPaymentActivity, apiContext)
-						apiContext.ensureSessionActive()
-						BunqContext.loadApiContext(apiContext)
 					}
 				}
 				showToast("Payment successfully sent.")
@@ -97,6 +90,7 @@ class NewPaymentActivity : AppCompatActivity() {
 				Log.w(TAG, e.toString())
 
 				when {
+					// Show Bunq Error, maybe they can be corrected.
 					e is BunqException || e is ApiException -> {
 						val lines = e.message!!.split("\\n|\\r")
 
@@ -104,6 +98,7 @@ class NewPaymentActivity : AppCompatActivity() {
 						new_payment_error.visibility = View.VISIBLE
 						showToast("Payment failed")
 					}
+					// Log and Toast other errors.
 					else -> {
 						Log.e(TAG, "$e has no solution (Unknown error occurred.).")
 						showToast("Unknown error occurred.")
@@ -114,16 +109,15 @@ class NewPaymentActivity : AppCompatActivity() {
 	}
 
 	/** Make a new payment.
-	  * @return true on success. */
+	  * @return ID of the BunqResponse.
+	  * @throws BunqException when the Payment fails or the connection. */
 	private fun makePayment(
-			pointerType: String,
-			pointerValue: String,
-			currency: String,
-			amount: Int,
+			pointerType: String, pointerValue: String,
+			currency: String, amount: Int,
 			description: String
 	) : Int {
 		Log.d(TAG, "Load API context.")
-		val apiContext = MainActivity.restoreContext(this@NewPaymentActivity)
+		val apiContext = BunqHandle.restoreContext(this@NewPaymentActivity)
 		BunqContext.loadApiContext(apiContext)
 
 		/* Generated Payee. */
@@ -135,9 +129,9 @@ class NewPaymentActivity : AppCompatActivity() {
 		)
 
 		Log.d(TAG, "Store the new API context.")
-		MainActivity.storeContext(this@NewPaymentActivity, apiContext)
+		BunqHandle.storeContext(context = this@NewPaymentActivity, apiContext = apiContext)
 		apiContext.ensureSessionActive()
-		BunqContext.loadApiContext(apiContext)
+		BunqContext.updateApiContext(apiContext)
 
 		Log.d(TAG, "Payment Succeeded.")
 
