@@ -1,48 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:animateLayoutChanges="true"
-	android:padding="10sp"
-	android:orientation="vertical"
-	tools:context=".MainActivity"
-	>
-
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:animateLayoutChanges="true"
+  android:padding="10sp"
+  android:orientation="vertical"
+  tools:context=".MainActivity"
+  >
   <!-- Overview of the last payments.-->
-
-	<TextView
-		android:id="@+id/title"
-		android:text="@string/title"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:textSize="35sp"
-		/>
-
-	<TextView
-		android:id="@+id/description"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginVertical="20sp"
-		android:text="Hello ${user}, here you see your latest payments. You also can make a new payment here."
-		android:layout_marginTop="20sp"
-		/>
-
-	<Button
-		android:id="@+id/new_payment"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginBottom="20sp"
-		android:text="Make a new Payment / TODO"
-		/>
-
-	<ListView
-		android:id="@+id/list_payments"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginBottom="20sp"
-		/>
-
+  <TextView
+    android:id="@+id/greeting"
+    android:text="@string/greeting"
+    android:gravity="top"
+    android:textSize="@dimen/TextSizeH2"
+    android:textStyle="bold"
+    android:padding="3dp"
+    android:textColor="@color/bunq_c00"
+    android:layout_width="match_parent"
+    android:layout_height="0sp"
+    android:layout_weight="0.10"
+    android:layout_margin="@dimen/default_margin"
+    />
+  <TextView
+    android:id="@+id/balances_view"
+    android:gravity="center_vertical"
+    android:text="@string/balances_view"
+    android:padding="3dp"
+    android:textColor="@color/bunq_c03"
+    android:layout_width="match_parent"
+    android:layout_height="0sp"
+    android:layout_weight="0.10"
+    android:layout_margin="@dimen/default_margin"
+    />
+  <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="0sp"
+    android:layout_weight="0.70"
+    android:layout_margin="@dimen/default_margin"
+    android:background="@drawable/roundly_bordered_bunq_c05"
+    >
+    <ListView
+      android:id="@+id/list_payments"
+      android:padding="@dimen/default_padding"
+      android:layout_width="match_parent"
+      android:layout_height="0sp"
+      android:layout_weight="0.95"
+      android:layout_margin="@dimen/default_margin"
+      />
+    <TextView
+      android:id="@+id/list_payments_refresh"
+      android:gravity="left"
+      android:text="@string/list_payments_refresh"
+      android:alpha="0.6"
+      android:textColor="@color/bunq_c05"
+      android:textSize="@dimen/TextSizeHint"
+      android:padding="@dimen/default_padding"
+      android:layout_width="match_parent"
+      android:layout_height="0sp"
+      android:layout_weight="0.05"
+      android:layout_margin="@dimen/default_margin"
+      />
+  </LinearLayout>
+  <Button
+    android:id="@+id/new_payment_button"
+    android:gravity="center"
+    android:text="@string/new_payment_button"
+    android:layout_width="match_parent"
+    android:layout_height="0sp"
+    android:layout_weight="0.10"
+    android:layout_margin="@dimen/default_margin"
+    android:textColor="@color/bunq_c11"
+    android:background="@drawable/roundly_bordered_bunq_c11"
+    />
 </LinearLayout>

@@ -1,20 +1,25 @@
 <resources>
-	<string name="app_name">Nox\' Lil\' Bunq App</string>
-	<string name="title">Nox\' bunq assignment</string>
-
-  <string name="new_payment_title">Hey ${sender.name}, make a new payment</string>
-	<string name="new_payment_hint_pointer_type">Their registered e-mail, phone number or IBAN.</string>
-	<string name="new_payment_hint_pointer_value">Their registered e-mail, phone number or IBAN.</string>
-	<string name="new_payment_hint_description">Add some nice words or a reason!</string>
-	<string name="new_payment_hint_amount">The amount to pay (in cents).</string>
-	<string name="new_payment_confirm">Make the payment!</string>
-
+  <string name="app_name">Nox\' Lil\' Bunq App</string>
+  <string name="title">Nox\' bunq assignment</string>
+  <string name="greeting">Hey, %s!</string>
+  <string name="balances_view">Your current balance: %s</string>
+  <string name="list_payments_refresh">&#8635;<!-- unicode "clockwise open circle" --></string>
+  <string name="new_payment_button">Make a new payment!</string>
+  <string name="new_payment_title">Who do you want to pay?</string>
+  <string name="new_payment_hint_pointer_value">Their known e-mail, phone number or IBAN.</string>
+  <string name="new_payment_hint_description">Add some nice words or a reason!</string>
+  <string name="new_payment_hint_amount">The amount to pay (in cents).</string>
+  <string name="new_payment_confirm">Make the payment!</string>
+  <string name="authenticate_title">Authenticate</string>
+  <string name="authenticate_token_hint">What\'s your token?</string>
+  <string name="authenticate_name_hint">How do you want to be called?</string>
+  <string name="authenticate_confirm">Start!</string>
+  <!-- Arrays -->
   <string-array name="new_payment_pointer_type_items">
     <item>EMAIL</item>
     <item>PHONE_NUMBER</item>
     <item>IBAN</item>
   </string-array>
-
   <string-array name="currency_codes_ISO_4217">
     <item>AED</item>
     <item>AFN</item>
@@ -196,10 +201,4 @@
     <item>ZMW</item>
     <item>ZWL</item>
   </string-array>
-
-  <string name="authenticate_title">Authenticate</string>
-  <string name="authenticate_token_hint">What\'s your token?</string>
-  <string name="authenticate_name_hint">How do you want to be called?</string>
-  <string name="authenticate_confirm">Start!</string>
-
 </resources>

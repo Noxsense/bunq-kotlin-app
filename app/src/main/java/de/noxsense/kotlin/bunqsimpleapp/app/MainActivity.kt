@@ -26,22 +26,31 @@ import okhttp3.Response
 import org.apache.commons.io.FileUtils
 
 import android.content.Context
+import android.database.DataSetObserver
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.ArrayAdapter
+import android.widget.ListAdapter
 import android.widget.ListView
 import android.widget.Toast
+import android.widget.TextView
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 
 import kotlinx.coroutines.*
 
 import kotlinx.android.synthetic.main.activity_main.*
+// import kotlinx.android.synthetic.main.list_item_payment.*
 
 class MainActivity : AppCompatActivity() {
 
 	private val TAG = "Bunq-Main"
+
+	private var user: User? = null
 	private var payments: List<Payment> = listOf()
+	private var balances: Map<MonetaryAccountBank, Amount> = mapOf()
 
 	// get first money as sandbox user.
 	private val SANDBOX_STARTING_MONEY = Amount("500.00", "EUR")
@@ -88,16 +97,26 @@ class MainActivity : AppCompatActivity() {
 		Log.i(TAG, "Started Application")
 
 		try {
-			/* list user payments. */
-			Log.d(TAG, "call setupPaymentAdapter()() ...")
-			setupPaymentAdapter()
-
 			/* Option to make a new payment. */
-			new_payment.setOnClickListener {
+			new_payment_button.setOnClickListener {
 				Log.d(TAG, "Clicked $it - New Payment.")
 				newPayment()
 			}
 
+			/* List user payments. */
+			Log.d(TAG, "call setupPaymentAdapter() ...")
+			setupPaymentAdapter()
+			Log.d(TAG, "Adapter is set up.")
+
+			greeting.text = getResources().getString(R.string.greeting)
+				.format(user?.getUserPerson()?.getDisplayName() ?: "User")
+
+			// refresh "button" => Simulate onResume() = load payments and balances.
+			list_payments_refresh.setOnClickListener {
+				Log.i(TAG, "Refresh clicked!")
+				list_payments.setAlpha(0.02.toFloat())
+				onResume()
+			}
 		} catch (e : Exception) {
 			Log.e(TAG, e.toString())
 		}
@@ -118,17 +137,27 @@ class MainActivity : AppCompatActivity() {
 			// reload payments.
 			Log.d(TAG, "Resumed: Fetch payments again.")
 			reloadPayments()
-			with (list_payments.adapter as ArrayAdapter<Payment>) {
-				this.clear()
-				this.addAll(payments)
-				this.notifyDataSetChanged()
-			}
 			Log.i(TAG, "Payments reloaded, displayed: ${list_payments.adapter.count}.")
+
+			Log.i(TAG, "Display balances: ${balances}")
+			balances_view.text = getResources().getString(R.string.balances_view)
+				.format(balances.toList().joinToString("", "\n") { (a, b) ->
+					// "$circ account(alias): balance(value/currency)"
+					"\u2218 ${b.show()} in ${a.show()}\n"
+				})
+
+			list_payments.setAlpha(0.6.toFloat())
 		} catch (e: Exception) {
 			Log.e(TAG, "Resuming with Exception")
 			Log.e(TAG, e.toString())
 		}
 	}
+
+	private fun MonetaryAccountBank.show() : String
+		= "${this.getDisplayName()} (${this.getStatus()})"
+
+	private fun Amount.show() : String
+		= "${this.getCurrency()} ${this.getValue()}"
 
 	override fun onPause() {
 		super.onPause()
@@ -180,21 +209,12 @@ class MainActivity : AppCompatActivity() {
 						Payment.list(it.getId(), page.getUrlParamsCountOnly())
 							.getValue()
 					}
+
+				Log.d(TAG, "Get all balances for the monetary banks.")
+				balances = moneytaryBanks.associateBy( {it}, {it.getBalance()})
 			}
 		}
 	}
-
-	private fun showPayment(position: Int) : Payment
-		= payments.get(position).also {
-			Log.d(TAG, "Show Payment, id $position/${payments.size}: $it")
-			// it.getBalanceAfterMutation()
-			Log.i(TAG, "Amount: ${it.getAmount().getCurrency()} ${it.getAmount().getValue()}")
-			Log.i(TAG, "Date:   ${it.getCreated()}")
-			Log.i(TAG, "From:   ${it.getAlias().getDisplayName()}")
-			Log.i(TAG, "To:     ${it.getCounterpartyAlias().getDisplayName()}")
-			Log.i(TAG, "Note:   ${it.getDescription()}")
-			Log.i(TAG, "Type:   ${it.getType()} (${it.getSubType()})")
-		}
 
 	protected fun setupPaymentAdapter() {
 		Log.d(TAG, "Counted ${payments.size}, see: ${payments}")
@@ -202,14 +222,97 @@ class MainActivity : AppCompatActivity() {
 		// initiate payemts before.
 		// reloadPayments()
 
-		Log.d(TAG, "Set adapter to payments")
-		list_payments.adapter = ArrayAdapter<Payment>(this, android.R.layout.simple_list_item_1)
-		(list_payments.adapter as ArrayAdapter<*>).setNotifyOnChange(true)
+		Log.d(TAG, "Set adapter with custom view")
+		try {
+			list_payments.adapter = object: ListAdapter {
+				override fun areAllItemsEnabled() : Boolean = true
+
+				override fun getCount() : Int = payments.size
+
+				override fun isEmpty() : Boolean = getCount() < 1
+
+				override fun getItem(p0: Int) : Payment = payments.get(p0)
+
+				override fun isEnabled(p0: Int) : Boolean = true
+
+				override fun getItemId(p0: Int) : Long = p0.toLong()
+
+				override fun hasStableIds() : Boolean = true
+
+				override fun getItemViewType(p0: Int) : Int = -1
+
+				override fun getViewTypeCount() : Int = getCount()
+
+				override fun getView(p0: Int, view: View?, parent: ViewGroup) : View {
+					Log.d(TAG, "View Payment ${p0 + 1} / ${getCount()}")
+					return paymentToView(parent, this.getItem(p0))
+				}
+
+				override fun registerDataSetObserver(observer: DataSetObserver) {}
+				override fun unregisterDataSetObserver(observer: DataSetObserver) {}
+			}
+		} catch (e: IllegalArgumentException) {
+			Log.w(TAG, "Caught $e on setting up the Payment Adapter.")
+		}
 
 		Log.d(TAG, "Add OnItemClickListener")
-		list_payments.setOnItemClickListener { _ , _, position, _ ->
-			showPayment(position)
+		list_payments.setOnItemClickListener { _ , view, _, _ ->
+			val expandable: View
+				= view.findViewById(R.id.list_payment_expanded)
+
+			expandable.visibility = when (expandable.visibility) {
+				View.GONE -> View.VISIBLE
+				else -> View.GONE
+			}
 		}
+	}
+
+	/** Payment-Item (expandable on click).
+	 * +================================+
+	 * |[+-] XX.xx EUR | to/from | when |
+	 * +--------------------------------+
+	 * |Type (sub)|             Account |
+	 * +--------------------------------+
+	 * |Description                     |
+	 * +================================+ */
+	private fun paymentToView(parent: ViewGroup, payment: Payment) : View {
+		Log.d(TAG, "Initate Custom View.")
+		val li = LayoutInflater.from(this)
+		val item = li.inflate(R.layout.list_item_payment, parent, false)
+
+		val amount = payment.getAmount()
+		val amountValue = amount.getValue().toDouble()
+		val paid = amountValue < 0
+
+		val counter = payment.getCounterpartyAlias().getDisplayName()
+
+		item.setBackground(getDrawable(when {
+			paid -> R.drawable.roundly_bordered_bunq_c09 // dark red
+			else -> R.drawable.roundly_bordered_bunq_c01 // dark green
+		})).also {
+			Log.d(TAG, "Coloured the paymen list item accordingly to the value ${paid} \u21d2 ${item.getBackground()}.")
+		}
+
+		(item.findViewById(R.id.list_payment_amount) as TextView)
+			.text = amount.run {
+				"%+8.2f %s".format(amountValue, this.getCurrency())
+			}
+
+		(item.findViewById(R.id.list_payment_counteralias) as TextView)
+			.text = "${if (paid) "to" else "from"} $counter"
+
+		(item.findViewById(R.id.list_payment_date) as TextView)
+			.text = payment.getUpdated().substring(0,16) // crop seconds.
+
+		(item.findViewById(R.id.list_payment_type) as TextView)
+			.text = "${payment.getType()} (${payment.getSubType()})"
+
+		(item.findViewById(R.id.list_payment_description) as TextView)
+			.text =  payment.getDescription()
+
+		Log.d(TAG, "Displaying Payment ${payment.getId()}.")
+
+		return item
 	}
 
 	fun setupContextAt(filepath: String = BunqHandle.confFile) : ApiContext {
@@ -229,18 +332,6 @@ class MainActivity : AppCompatActivity() {
 
 				Log.d(TAG, "Store ApiContext.")
 				storeContext(this@MainActivity, apiContext, filepath)
-
-			// psd2 context.
-			/*
-			var apiContext = ApiContext.createForPsd2(
-				ENVIRONMENT_TYPE,
-				SecurityUtils.getCertificateFromFile(PATH_TO_CERTIFICATE),
-				SecurityUtils.getPrivateKeyFromFile(PATH_TO_PRIVATE_KEY),
-				new Certificate[]{
-						SecurityUtils.getCertificateFromFile(PATH_TO_CERTIFICATE_CHAIN)
-				},
-				DESCRIPTION
-			) */
 
 			BunqContext.loadApiContext(apiContext)
 
@@ -263,6 +354,8 @@ class MainActivity : AppCompatActivity() {
 		var apiContext = restoreContext(this, filepath)
 		apiContext.ensureSessionActive()
 		BunqContext.loadApiContext(apiContext)
+
+		user = User.get().getValue()
 
 		return apiContext
 	}

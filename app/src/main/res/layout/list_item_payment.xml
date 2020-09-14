@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@drawable/roundly_bordered_bunq_c09"
+  android:padding="5dp"
+  android:layout_margin="@dimen/default_margin"
+  >
+  <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+    <!-- .......|..............|....... -->
+    <TextView
+      android:id="@+id/list_payment_amount"
+      android:gravity="center_vertical"
+      android:text="- XXX.xx EUR"
+      android:textStyle="bold"
+      android:padding="@dimen/default_padding"
+      android:layout_height="wrap_content"
+      android:layout_width="0sp"
+      android:layout_weight="0.35"
+      />
+    <TextView
+      android:id="@+id/list_payment_counteralias"
+      android:gravity="center_vertical"
+      android:text="from/to ALIAS"
+      android:padding="@dimen/default_padding"
+      android:layout_height="wrap_content"
+      android:layout_width="0sp"
+      android:layout_weight="0.40"
+      />
+    <TextView
+      android:id="@+id/list_payment_date"
+      android:gravity="center_vertical"
+      android:text="YYYY-mm-dd HH:MM:SS"
+      android:textStyle="italic"
+      android:textSize="@dimen/TextSizeHint"
+      android:padding="@dimen/default_padding"
+      android:alpha="0.3"
+      android:layout_height="wrap_content"
+      android:layout_width="0sp"
+      android:layout_weight="0.25"
+      />
+  </LinearLayout>
+  <LinearLayout
+    android:id="@+id/list_payment_expanded"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="@dimen/default_padding"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/default_margin"
+    android:visibility="gone"
+    >
+    <TextView
+      android:id="@+id/list_payment_type"
+      android:text="Type (Subtype)"
+      android:textSize="@dimen/TextSizeHint"
+      android:alpha="0.7"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      />
+    <TextView
+      android:id="@+id/list_payment_description"
+      android:text="Description"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      />
+  </LinearLayout>
+</LinearLayout>

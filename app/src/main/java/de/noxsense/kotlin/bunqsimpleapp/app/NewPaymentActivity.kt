@@ -7,9 +7,6 @@ import com.bunq.sdk.exception.BunqException
 import com.bunq.sdk.model.generated.`object`.Amount
 import com.bunq.sdk.model.generated.`object`.Pointer
 import com.bunq.sdk.model.generated.endpoint.Payment
-import com.bunq.sdk.model.generated.endpoint.SandboxUser
-import com.bunq.sdk.model.generated.endpoint.User
-import com.bunq.sdk.model.generated.endpoint.UserPerson
 
 import android.content.Intent
 import android.os.Bundle
@@ -68,6 +65,7 @@ class NewPaymentActivity : AppCompatActivity() {
 				Log.d(TAG, "Fetch the inserted data.")
 				val pointerType = new_payment_pointer_type.getSelectedItem().toString()
 				val pointerValue = new_payment_pointer_value.text.toString()
+				val currency = new_payment_amount_currency.getSelectedItem().toString()
 				val amount = new_payment_amount.text.toString().toInt()
 				val description = new_payment_description.text.toString()
 
@@ -76,8 +74,10 @@ class NewPaymentActivity : AppCompatActivity() {
 				// make the payment with the API.
 				runBlocking {
 					launch(Dispatchers.Default) {
-						val paymentId = makePayment(
-							pointerType, pointerValue, amount, description)
+						makePayment(
+							pointerType, pointerValue,
+							currency, amount,
+							description)
 
 						// Toast.makeText(this@NewPaymentActivity, "Payment suceeded.", Toast.LENGTH_LONG).show()
 
@@ -118,6 +118,7 @@ class NewPaymentActivity : AppCompatActivity() {
 	private fun makePayment(
 			pointerType: String,
 			pointerValue: String,
+			currency: String,
 			amount: Int,
 			description: String
 	) : Int {
@@ -128,7 +129,7 @@ class NewPaymentActivity : AppCompatActivity() {
 		/* Generated Payee. */
 		Log.d(TAG, "Try to make the payment.")
 		val bunqResponse = Payment.create(
-			Amount("${amount / 100.0}", "EUR"),
+			Amount("${amount / 100.0}", "${currency}"),
 			Pointer(pointerType, pointerValue),
 			description
 		)
@@ -141,10 +142,5 @@ class NewPaymentActivity : AppCompatActivity() {
 		Log.d(TAG, "Payment Succeeded.")
 
 		return bunqResponse.getValue()
-	}
-
-	private fun backToOverview() {
-		val intent = Intent(this, MainActivity::class.java)
-		startActivity(intent)
 	}
 }
