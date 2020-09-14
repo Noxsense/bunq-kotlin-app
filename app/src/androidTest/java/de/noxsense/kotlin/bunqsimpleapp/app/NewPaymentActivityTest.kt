@@ -18,23 +18,13 @@ import org.junit.runner.RunWith
 class MainActivityTest {
 
 	@get:Rule
-	var activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
+	var activityRule: ActivityTestRule<NewPaymentActivity> = ActivityTestRule(MainActivity::class.java)
 
 	@Test
-	fun refreshButton() {
-		// is prohibited offline
-		// is pulling new bunq data => maybe also updating the listview and balances
-	}
-
-	@Test
-	fun newPaymentView() {
-		// is prohibited offline
-		// changes the view
-	}
-
-	@Test
-	fun resumeAndPause() {
-		// store context on pause
-		// restore context on resume
+	fun newPaymentConfirm() {
+		// fetch the data
+		// make the payment
+		// on success go back
+		// on failure hint error
 	}
 }
