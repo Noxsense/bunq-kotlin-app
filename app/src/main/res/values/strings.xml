@@ -1,7 +1,9 @@
 <resources>
   <string name="app_name">Nox\' Lil\' Bunq App</string>
   <string name="title">Nox\' bunq assignment</string>
+  <string name="api_quest">Insert your API or do you want to play in the Sandbox?</string>
   <string name="greeting">Hey, %s!</string>
+  <string name="change">Change?</string>
   <string name="balances_view">Your current balance: %s</string>
   <string name="list_payments_refresh">&#8635;<!-- unicode "clockwise open circle" --></string>
   <string name="new_payment_button">Make a new payment!</string>
@@ -10,10 +12,12 @@
   <string name="new_payment_hint_description">Add some nice words or a reason!</string>
   <string name="new_payment_hint_amount">The amount to pay (in cents).</string>
   <string name="new_payment_confirm">Make the payment!</string>
-  <string name="authenticate_title">Authenticate</string>
-  <string name="authenticate_token_hint">What\'s your token?</string>
-  <string name="authenticate_name_hint">How do you want to be called?</string>
-  <string name="authenticate_confirm">Start!</string>
+  <string name="api_question">Hey there! Use your Production API. Or play around in a lil\' sandbox! Or just use the last setup.</string>
+  <string name="api_use_existing">Use Exisiting</string>
+  <string name="api_use_new_sandbox">Create new Sandbox</string>
+  <string name="api_use_production">Use Production API Key</string>
+  <string name="api_key_hint">Insert your API Key</string>
+
   <!-- Arrays -->
   <string-array name="new_payment_pointer_type_items">
     <item>EMAIL</item>

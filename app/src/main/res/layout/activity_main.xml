@@ -8,19 +8,38 @@
   android:orientation="vertical"
   >
   <!-- Overview of the last payments.-->
-  <TextView
-    android:id="@+id/greeting"
-    android:gravity="top"
-    android:text="@string/greeting"
-    android:textSize="@dimen/TextSizeH1"
-    android:textStyle="bold"
-    android:textColor="@color/bunq_c00"
-    android:padding="10dp"
+  <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center_vertical"
     android:layout_width="match_parent"
     android:layout_height="0sp"
     android:layout_weight="0.10"
     android:layout_margin="@dimen/default_margin"
-    />
+    >
+    <TextView
+      android:id="@+id/greeting"
+      android:gravity="left"
+      android:text="@string/greeting"
+      android:textStyle="bold"
+      android:textSize="@dimen/TextSizeH1"
+      android:textColor="@color/bunq_c00"
+      android:padding="10dp"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      />
+    <TextView
+      android:id="@+id/change"
+      android:gravity="right"
+      android:text="@string/change"
+      android:textStyle="italic"
+      android:alpha="0.5"
+      android:textSize="@dimen/TextSizeH1"
+      android:textColor="@color/bunq_c00"
+      android:padding="10dp"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      />
+  </LinearLayout>
   <TextView
     android:id="@+id/balances_view"
     android:gravity="center_vertical"

@@ -37,21 +37,26 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 object BunqHandle {
 
-	private val TAG = "Nox-Bunq-MainActivity"
+	private val TAG = "Bunq-Handle"
 
-	val WAIT_BTW_RQ = 3
+	private val DEVICE_NOTE = "Nox' Lil' Bunq App (Android, 100% Kotlin)"
 
-	val DEFAULT_CONF_FILE: String = "bunq-sandbox.conf"
+	private val WAIT_BTW_RQ = 3
 
-	val SANDBOX_STARTING_MONEY = Amount("500.00", "EUR")
-	val SUGAR_DADDY = Pointer("EMAIL", "sugardaddy@bunq.com")
+	private val SANDBOX_STARTING_MONEY = Amount("500.00", "EUR")
+	private val SUGAR_DADDY = Pointer("EMAIL", "sugardaddy@bunq.com")
+
+	public val DEFAULT_CONF_FILE: String = "bunq-sandbox.conf"
+
+	val LOGIN_FROM_FILE: String = ""
+	val LOGIN_SANDBOX_NEW: String? = null
 
 	fun postNewSandboxUser() : SandboxUser {
 		Log.d(TAG, "Create a new sandbox user with tinker.")
 
 		// DOCS: https://public-api.sandbox.bunq.com/v1/
 		var request = Request.Builder()
-			.url("https://public-api.sandbox.bunq.com/v1/sandbox-user-person")
+			.url("https://" + ApiEnvironmentType.SANDBOX.getBaseUri() + "/v1/sandbox-user-person")
 			.post(RequestBody.create(null, ByteArray(0)))
 			.addHeader("Content-Type", "application/json" )
 			.addHeader("Cache-Control", "none" )
@@ -115,29 +120,34 @@ object BunqHandle {
 	/** Setup a new Bunq and API Context.
 	 * If nothing is given or requested, just start a new Sandbox Session with
 	 * with a new Sandbox User who pumps some money from Sugger Daddy.
-	 * @param context the environemnt to store and load files.
+	 * @param app the environemnt to store and load files.
 	 * @param filepath the filename to store and load the save file.
+	 * @param login Login Scenarios: Last Config (""), NewSandbox (null), Production API ("key")
 	 * @return ApiContext() for the the current session.
 	 */
-	fun setupContextAt(context: Context, filepath: String = BunqHandle.DEFAULT_CONF_FILE) : ApiContext {
-		Log.d(TAG, "setup the context stored to the file, or create a new one.")
-		if (!File(context.getFilesDir(), filepath).exists()) {
-			Log.d(TAG, "Create a new sandbox user with tinker.")
+	fun setupContextAt(app: Context, filepath: String = BunqHandle.DEFAULT_CONF_FILE, login: String? = LOGIN_FROM_FILE) : ApiContext {
+		Log.d(TAG, "Setup the context stored to the file, or create a new one or overwrite with new login.")
+
+		val fileExists = File(app.getFilesDir(), filepath).exists()
+
+		/* Enforce new sandbox, or old settings were requested, but not existing. */
+		if (login == LOGIN_SANDBOX_NEW || (login == LOGIN_FROM_FILE && !fileExists)) {
+			Log.d(TAG, "Create a new sandbox user with tinker, ($login) and ($fileExists)")
 
 			var sandboxuser = BunqHandle.postNewSandboxUser()
 			// var sandboxuser = SandboxUser.create()
 
 			Log.d(TAG, "Create a new ApiContext with API key")
-			var apiContext = ApiContext
+			var sandboxContext = ApiContext
 				.create(
 					ApiEnvironmentType.SANDBOX,
 					sandboxuser.getApiKey(),
-					"Nox Bunq ?" /* device description */ )
+					DEVICE_NOTE)
 
-				Log.d(TAG, "Store ApiContext.")
-				storeContext(context, filepath, apiContext)
+			Log.d(TAG, "Store ApiContext.")
+			storeContext(app, filepath, sandboxContext)
 
-			BunqContext.loadApiContext(apiContext)
+			BunqContext.loadApiContext(sandboxContext)
 
 			Log.d(TAG, "Get money from sugar daddy.")
 			/* As sandbox user, we pump money from our sugardaddy. */
@@ -147,15 +157,23 @@ object BunqHandle {
 				"You're the best!",
 				false /* allow bunqme */)
 
-			storeContext(context, filepath, BunqContext.getApiContext())
+			storeContext(app, filepath, BunqContext.getApiContext())
+		} else if (login != LOGIN_SANDBOX_NEW && login != LOGIN_FROM_FILE) {
+			Log.i(TAG, "Login with a given API key and in PRODUCTION")
 
-		} else {
-			Log.d(TAG, "File exists, load this.")
+			var loginContext = ApiContext.create(
+				ApiEnvironmentType.PRODUCTION,
+				login,
+				DEVICE_NOTE)
+
+			Log.d(TAG, "Store/Overwrite ApiContext.")
+			storeContext(app, filepath, loginContext)
+
 		}
 
-		// restore
+		// Restore from file (maybe just set)
 		Log.d(TAG, "Restore ApiContext from conf file.")
-		var apiContext = restoreContext(context, filepath)
+		var apiContext = restoreContext(app, filepath)
 		apiContext.ensureSessionActive()
 		BunqContext.loadApiContext(apiContext)
 

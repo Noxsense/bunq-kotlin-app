@@ -92,7 +92,7 @@ class NewPaymentActivity : AppCompatActivity() {
 				when {
 					// Show Bunq Error, maybe they can be corrected.
 					e is BunqException || e is ApiException -> {
-						val lines = e.message!!.split("\\n|\\r")
+						val lines = e.message!!.split("\\n\\|\\r")
 
 						new_payment_error.text = lines[lines.size - 1]
 						new_payment_error.visibility = View.VISIBLE

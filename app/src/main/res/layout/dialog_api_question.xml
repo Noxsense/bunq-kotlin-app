@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ./app/src/main/res/layout/activity_authenticate.xml -->
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:padding="10sp"
+  android:orientation="vertical"
+  android:background="@drawable/roundly_bordered_textcolor"
+  >
+  <TextView
+    android:id="@+id/api_question"
+    android:text="@string/api_question"
+    android:textSize="@dimen/TextSizeHint"
+    android:padding="10dp"
+    android:layout_width="match_parent"
+    android:layout_height="0sp"
+    android:layout_weight="0.30"
+    android:layout_margin="5dp"
+    android:background="@drawable/roundly_bordered_bunq_c00"
+  />
+  <!-- the options -->
+  <Button
+    android:id="@+id/use_existing"
+    android:textSize="@dimen/TextSizeH3"
+    android:text="@string/api_use_existing"
+    android:layout_width="match_parent"
+    android:layout_height="0sp"
+    android:layout_weight="0.18"
+    android:layout_margin="5dp"
+    android:background="@drawable/roundly_bordered_bunq_c02"
+    />
+  <Button
+    android:id="@+id/use_new_sandbox"
+    android:textSize="@dimen/TextSizeH3"
+    android:text="@string/api_use_new_sandbox"
+    android:layout_width="match_parent"
+    android:layout_height="0sp"
+    android:layout_weight="0.18"
+    android:layout_margin="5dp"
+    android:background="@drawable/roundly_bordered_bunq_c05"
+    />
+  <Button
+    android:id="@+id/use_production"
+    android:textSize="@dimen/TextSizeH3"
+    android:text="@string/api_use_production"
+    android:layout_width="match_parent"
+    android:layout_height="0sp"
+    android:layout_weight="0.19"
+    android:layout_margin="5dp"
+    android:background="@drawable/roundly_bordered_bunq_c08"
+    />
+  <EditText
+    android:id="@+id/api_key"
+    android:textSize="@dimen/TextSizeH3"
+    android:textColor="@color/TextColorPrimary"
+    android:padding="6dp"
+    android:layout_width="match_parent"
+    android:layout_height="0sp"
+    android:layout_weight="0.30"
+    android:layout_margin="5dp"
+    android:visibility="gone"
+    android:hint="@string/api_key_hint"
+    android:background="@drawable/roundly_bordered_bunq_c11"
+    />
+</LinearLayout>

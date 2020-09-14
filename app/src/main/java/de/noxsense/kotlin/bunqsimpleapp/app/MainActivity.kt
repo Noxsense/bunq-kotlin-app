@@ -1,13 +1,17 @@
 package de.noxsense.kotlin.bunqsimpleapp.app
 
 import com.bunq.sdk.context.BunqContext
+import com.bunq.sdk.exception.BadRequestException
 import com.bunq.sdk.exception.BunqException
 import com.bunq.sdk.model.generated.`object`.Amount
 import com.bunq.sdk.model.generated.endpoint.MonetaryAccountBank
 import com.bunq.sdk.model.generated.endpoint.Payment
 import com.bunq.sdk.model.generated.endpoint.User
 
+import android.app.AlertDialog
+import android.app.AlertDialog.Builder
 import android.content.Context
+import android.view.View.OnClickListener
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -16,22 +20,39 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
 
 import kotlinx.android.synthetic.main.activity_main.*
-// import kotlinx.android.synthetic.main.list_item_payment.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnClickListener {
+
+	val TAG = "Bunq-Main"
 
 	private var user: User? = null
 	private val payments: MutableList<Payment> = mutableListOf()
 	private val balances: MutableMap<MonetaryAccountBank, Amount> = mutableMapOf()
 
-	val TAG = "Bunq-Main"
+	/* the login method.
+	 * empty => uses an exisiting, saved api key.
+	 * null => creates a new (sandbox) api key
+	 * key => login into production */
+	private var login: String? = ""
 
+	private var dialogLogin: AlertDialog? = null
+	private var btnLoginExisiting: TextView? = null
+	private var btnLoginSandboxNew: TextView? = null
+	private var btnLoginProduction: TextView? = null
+	private var editLoginProduction: EditText? = null
+
+	private var btnRefreshList: TextView? = null
+	private var btnChangeContext: TextView? = null
+	private var btnMakeNewPayemnt: TextView? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -41,29 +62,18 @@ class MainActivity : AppCompatActivity() {
 
 		try {
 			/* Option to make a new payment. */
-			new_payment_button.setOnClickListener {
-				if (BunqHandle.isOnline()) {
-					Log.d(TAG, "Clicked 'New Payment'.")
-					newPayment()
-				} else {
-					Log.d(TAG, "Clicked 'New Payment', but offline.")
-					showToast("You are offline.", Toast.LENGTH_SHORT)
-				}
-			}
+			btnMakeNewPayemnt = (new_payment_button as TextView)
+				.also { it.setOnClickListener(this) }
+
+			/* Create option to use other login. */
+			btnChangeContext = (change as TextView)
+				.also { it.setOnClickListener(this) }
+
 
 			/* refresh "button" => Simulate onResume() = load payments and balances.
 			 * no bunq call to set this up. */
-			list_payments_refresh.setOnClickListener {
-				if (BunqHandle.isOnline()) {
-					Log.i(TAG, "Clicked 'Refresh'.")
-					list_payments_refresh.setAlpha(0.02.toFloat())
-					showToast("Refreshing!")
-					onResume()
-				} else {
-					Log.d(TAG, "Clicked 'Refresh', but offline.")
-					showToast("You are offline.", Toast.LENGTH_SHORT)
-				}
-			}
+			btnRefreshList = list_payments_refresh
+				.also { it.setOnClickListener(this) }
 
 			/* List user payments.
 			 * no bunq call to set this up.  */
@@ -83,48 +93,47 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
+	private fun askForApiLogin() {
+		val builder = AlertDialog.Builder(this)
+		val infl = LayoutInflater.from(this)
+
+		val view = infl.inflate(R.layout.dialog_api_question, null)
+
+		// set up the buttons.
+		btnLoginExisiting = view.findViewById(R.id.use_existing)
+		btnLoginSandboxNew = view.findViewById(R.id.use_new_sandbox)
+		btnLoginProduction = view.findViewById(R.id.use_production)
+		editLoginProduction = view.findViewById(R.id.api_key)
+
+		builder.setView(view)
+		builder.setCancelable(true)
+		builder.setOnDismissListener{
+			Log.i(TAG, "API login done: Login is '${login}'")
+			try {
+				fetchBung(login)
+			} catch (e: Exception) {
+				fetchBung("") // stay with old things.
+				showToast(e.toString())
+			}
+			btnLoginExisiting!!.visibility = View.VISIBLE
+			btnLoginSandboxNew!!.visibility = View.VISIBLE
+			editLoginProduction!!.visibility = View.GONE
+		}
+		val dialog = builder.create() // returns dialog.
+
+		btnLoginExisiting!!.setOnClickListener(this)
+		btnLoginSandboxNew!!.setOnClickListener(this)
+		btnLoginProduction!!.setOnClickListener(this)
+
+		dialog.show()
+
+		dialogLogin = dialog // referencing to val.
+	}
+
 	override fun onResume() {
 		super.onResume()
 		try {
-			list_payments_refresh.setAlpha((0.7).toFloat())
-
-			// restore (or create) context.
-			runBlocking {
-				launch(Dispatchers.Default) {
-					Log.d(TAG, "Restore (or Create Context) -> Call setupContextAt()")
-					BunqHandle.setupContextAt(this@MainActivity)
-					user = User.get().getValue()
-
-					// receveived payemnts and balance overviews.
-					Log.d(TAG, "Fetch Payments and Balances.")
-					val (rpayments, rbalances) = BunqHandle.fetchPaymentsAndBalance()
-
-					// try not to change the pointer.
-					payments.clear()
-					payments += rpayments
-
-					balances.clear()
-					balances += rbalances
-				}
-			}
-
-			// reload name.
-			greeting.text = getResources().getString(R.string.greeting)
-				.format(user?.getUserPerson()?.getDisplayName() ?: "User")
-
-			// show balances
-			Log.i(TAG, "Display balances: ${balances.values}")
-			balances_view.text = getResources().getString(R.string.balances_view)
-				.format(balances.toList().joinToString("", "\n") { (a, b) ->
-					// "$circ account(alias): balance(value/currency)"
-					"\u2218 ${b.show()} in ${a.show()}\n"
-				})
-
-			// list payments.
-			Log.i(TAG, "Payments reloaded ${payments.size}, displayed: ${list_payments.adapter.count}.")
-			(list_payments.adapter as ArrayAdapter<Payment>).run {
-				this.notifyDataSetChanged()
-			}
+			fetchBung()
 		} catch (e: Error) {
 			Log.e(TAG, "Error occurred")
 			Log.e(TAG, e.toString())
@@ -135,6 +144,112 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
+	/** Make a quick Toast Note. */
+	protected fun showToast(msg: Any?, duration: Int = Toast.LENGTH_LONG) {
+		Toast.makeText(this.getApplicationContext(), "${msg}", duration).show()
+	}
+
+	override fun onClick(view: View) {
+		when (view) {
+			btnLoginExisiting -> {
+				Log.i(TAG, "Load existing.")
+				login = BunqHandle.LOGIN_FROM_FILE
+				dialogLogin!!.dismiss()
+			}
+
+			btnLoginSandboxNew -> {
+				Log.i(TAG, "Create new Sandbox.")
+				login = BunqHandle.LOGIN_SANDBOX_NEW
+				dialogLogin!!.dismiss()
+			}
+
+			btnLoginProduction -> {
+				Log.i(TAG, "Use API key from Production.")
+				if (editLoginProduction!!.visibility != View.VISIBLE) {
+					btnLoginExisiting!!.visibility = View.GONE
+					btnLoginSandboxNew!!.visibility = View.GONE
+					editLoginProduction!!.visibility = View.VISIBLE
+				} else {
+					login = editLoginProduction!!.text.toString().trim()
+					dialogLogin!!.dismiss()
+				}
+			}
+
+			btnChangeContext -> {
+				if (dialogLogin == null) {
+					askForApiLogin()
+				} else {
+					dialogLogin!!.show()
+				}
+			}
+
+			btnMakeNewPayemnt -> {
+				if (BunqHandle.isOnline()) {
+					Log.d(TAG, "Clicked 'New Payment'.")
+					newPayment()
+				} else {
+					Log.d(TAG, "Clicked 'New Payment', but offline.")
+					showToast("You are offline.", Toast.LENGTH_SHORT)
+				}
+			}
+
+			btnRefreshList -> {
+				if (BunqHandle.isOnline()) {
+					Log.i(TAG, "Clicked 'Refresh'.")
+					list_payments_refresh.setAlpha(0.02.toFloat())
+					showToast("Refreshing!")
+					onResume()
+				} else {
+					Log.d(TAG, "Clicked 'Refresh', but offline.")
+					showToast("You are offline.", Toast.LENGTH_SHORT)
+				}
+			}
+		}
+	}
+
+	private fun fetchBung(method: String? = BunqHandle.LOGIN_FROM_FILE) {
+		list_payments_refresh.setAlpha((0.7).toFloat())
+
+		// restore (or create) context.
+		runBlocking {
+			launch(Dispatchers.Default) {
+				Log.d(TAG, "Restore (or Create Context) -> Call setupContextAt()")
+				BunqHandle.setupContextAt(this@MainActivity, BunqHandle.DEFAULT_CONF_FILE, method)
+				user = User.get().getValue()
+
+				// receveived payemnts and balance overviews.
+				Log.d(TAG, "Fetch Payments and Balances.")
+				val (rpayments, rbalances) = BunqHandle.fetchPaymentsAndBalance()
+
+				// try not to change the pointer.
+				payments.clear()
+				payments += rpayments
+
+				balances.clear()
+				balances += rbalances
+			}
+		}
+
+		// reload name.
+		greeting.text = getResources().getString(R.string.greeting)
+			.format(user?.getUserPerson()?.getDisplayName() ?: "User")
+
+		// show balances
+		Log.i(TAG, "Display balances: ${balances.values}")
+		balances_view.text = getResources().getString(R.string.balances_view)
+			.format(balances.toList().joinToString("", "\n") { (a, b) ->
+				// "$circ account(alias): balance(value/currency)"
+				"\u2218 ${b.show()} in ${a.show()}\n"
+			})
+
+		// list payments.
+		Log.i(TAG, "Payments reloaded ${payments.size}, displayed: ${list_payments.adapter.count}.")
+		(list_payments.adapter as ArrayAdapter<Payment>).run {
+			this.notifyDataSetChanged()
+		}
+		login = BunqHandle.LOGIN_FROM_FILE // reset to default.
+	}
+
 	private fun MonetaryAccountBank.show() : String
 		= "${this.getDisplayName()} (${this.getStatus()})"
 
@@ -143,6 +258,10 @@ class MainActivity : AppCompatActivity() {
 
 	override fun onPause() {
 		super.onPause()
+		storeBunqLocally()
+	}
+
+	private fun storeBunqLocally() {
 		runBlocking {
 			launch(Dispatchers.Default) {
 				try {
@@ -161,11 +280,6 @@ class MainActivity : AppCompatActivity() {
 				}
 			}
 		}
-	}
-
-	/** Make a quick Toast Note. */
-	protected fun showToast(msg: Any?, duration: Int = Toast.LENGTH_LONG) {
-		Toast.makeText(this.getApplicationContext(), "${msg}", duration).show()
 	}
 
 	/** Change the view to make a new Payment.
