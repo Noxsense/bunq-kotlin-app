@@ -42,23 +42,6 @@ object BunqHandle {
 
 	val confFile: String = "bunq-sandbox.conf"
 
-	fun paymentsToList() : List<Payment> {
-		try {
-			val pagination = Pagination()
-			pagination.setCount(10)
-
-			Log.d(TAG, "Get all monetary banks")
-			val moneytaryBanks = MonetaryAccountBank
-				.list(pagination.getUrlParamsCountOnly())
-				.getValue()
-
-			Log.d(TAG, "Get all payments for the monetary banks.")
-			return moneytaryBanks .flatMap { Payment.list(it.getId(), pagination.getUrlParamsCountOnly()).getValue() }
-		} catch (e: BunqException) {
-			return listOf()
-		}
-	}
-
 	fun postNewSandboxUser() : SandboxUser {
 		Log.d(TAG, "Create a new sandbox user with tinker.")
 

@@ -79,8 +79,6 @@ class NewPaymentActivity : AppCompatActivity() {
 							currency, amount,
 							description)
 
-						// Toast.makeText(this@NewPaymentActivity, "Payment suceeded.", Toast.LENGTH_LONG).show()
-
 						Log.d(TAG, "Store to Context.")
 						val apiContext = BunqContext.getApiContext()
 						MainActivity.storeContext(this@NewPaymentActivity, apiContext)
@@ -88,6 +86,8 @@ class NewPaymentActivity : AppCompatActivity() {
 						BunqContext.loadApiContext(apiContext)
 					}
 				}
+				showToast("Payment successfully sent.")
+				Thread.sleep(3000L) // sleep before the next request (MainActivity.onResume())
 
 				// return to MainActivity
 				Log.d(TAG, "Back to MainActivity on Success.")
@@ -102,11 +102,11 @@ class NewPaymentActivity : AppCompatActivity() {
 
 						new_payment_error.text = lines[lines.size - 1]
 						new_payment_error.visibility = View.VISIBLE
-						// Toast.makeText(this@NewPaymentActivity, "Payment failed.", Toast.LENGTH_LONG).show()
+						showToast("Payment failed")
 					}
 					else -> {
 						Log.e(TAG, "$e has no solution (Unknown error occurred.).")
-						// Toast.makeText(this@NewPaymentActivity, "Unknown error occurred.", Toast.LENGTH_LONG).show()
+						showToast("Unknown error occurred.")
 					}
 				}
 			}
@@ -142,5 +142,9 @@ class NewPaymentActivity : AppCompatActivity() {
 		Log.d(TAG, "Payment Succeeded.")
 
 		return bunqResponse.getValue()
+	}
+
+	protected fun showToast(msg: Any?, duration: Int = Toast.LENGTH_LONG) {
+		Toast.makeText(this.getApplicationContext(), "${msg}", duration).show()
 	}
 }

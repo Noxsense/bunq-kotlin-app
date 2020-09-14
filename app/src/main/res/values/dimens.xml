@@ -14,4 +14,5 @@
 
     <dimen name="roundly_bordered_corners">14dp</dimen>
     <dimen name="roundly_bordered_stroke">1dp</dimen>
+    <dimen name="roundly_bordered_stroke_listitem">1sp</dimen>
 </resources>

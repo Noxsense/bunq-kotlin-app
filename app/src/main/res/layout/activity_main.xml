@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:app="http://schemas.android.com/apk/res-auto"
-  xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:animateLayoutChanges="true"
   android:padding="10sp"
   android:orientation="vertical"
-  tools:context=".MainActivity"
   >
   <!-- Overview of the last payments.-->
   <TextView
     android:id="@+id/greeting"
-    android:text="@string/greeting"
     android:gravity="top"
-    android:textSize="@dimen/TextSizeH2"
+    android:text="@string/greeting"
+    android:textSize="@dimen/TextSizeH1"
     android:textStyle="bold"
-    android:padding="3dp"
     android:textColor="@color/bunq_c00"
+    android:padding="10dp"
     android:layout_width="match_parent"
     android:layout_height="0sp"
     android:layout_weight="0.10"
@@ -28,12 +25,13 @@
     android:id="@+id/balances_view"
     android:gravity="center_vertical"
     android:text="@string/balances_view"
-    android:padding="3dp"
-    android:textColor="@color/bunq_c03"
+    android:padding="10dp"
+    android:textColor="@color/TextColorPrimary"
     android:layout_width="match_parent"
     android:layout_height="0sp"
     android:layout_weight="0.10"
     android:layout_margin="@dimen/default_margin"
+    android:background="@drawable/roundly_bordered_bunq_c03"
     />
   <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -41,7 +39,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="0sp"
-    android:layout_weight="0.70"
+    android:layout_weight="0.66"
     android:layout_margin="@dimen/default_margin"
     android:background="@drawable/roundly_bordered_bunq_c05"
     >
@@ -49,28 +47,28 @@
       android:id="@+id/list_payments"
       android:padding="@dimen/default_padding"
       android:layout_width="match_parent"
-      android:layout_height="0sp"
-      android:layout_weight="0.95"
-      android:layout_margin="@dimen/default_margin"
-      />
-    <TextView
-      android:id="@+id/list_payments_refresh"
-      android:gravity="left"
-      android:text="@string/list_payments_refresh"
-      android:alpha="0.6"
-      android:textColor="@color/bunq_c05"
-      android:textSize="@dimen/TextSizeHint"
-      android:padding="@dimen/default_padding"
-      android:layout_width="match_parent"
-      android:layout_height="0sp"
-      android:layout_weight="0.05"
+      android:layout_height="match_parent"
       android:layout_margin="@dimen/default_margin"
       />
   </LinearLayout>
+  <TextView
+    android:id="@+id/list_payments_refresh"
+    android:gravity="center"
+    android:text="@string/list_payments_refresh"
+    android:alpha="0.9"
+    android:textSize="@dimen/TextSizePrimary"
+    android:textStyle="bold"
+    android:textColor="@color/bunq_c05"
+    android:layout_width="match_parent"
+    android:layout_height="0sp"
+    android:layout_weight="0.04"
+    android:layout_margin="3dp"
+    />
   <Button
     android:id="@+id/new_payment_button"
     android:gravity="center"
     android:text="@string/new_payment_button"
+    android:textStyle="bold"
     android:layout_width="match_parent"
     android:layout_height="0sp"
     android:layout_weight="0.10"
