@@ -105,6 +105,10 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 		btnLoginProduction = view.findViewById(R.id.use_production)
 		editLoginProduction = view.findViewById(R.id.api_key)
 
+		btnLoginExisiting!!.setOnClickListener(this)
+		btnLoginSandboxNew!!.setOnClickListener(this)
+		btnLoginProduction!!.setOnClickListener(this)
+
 		builder.setView(view)
 		builder.setCancelable(true)
 		builder.setOnDismissListener{
@@ -121,13 +125,12 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 		}
 		val dialog = builder.create() // returns dialog.
 
-		btnLoginExisiting!!.setOnClickListener(this)
-		btnLoginSandboxNew!!.setOnClickListener(this)
-		btnLoginProduction!!.setOnClickListener(this)
-
-		dialog.show()
-
-		dialogLogin = dialog // referencing to val.
+		dialog.run {
+			dialogLogin = this // referencing to val.
+			getWindow()?.setBackgroundDrawableResource(
+				R.drawable.dialog_api_question_bg)
+			dialog.show()
+		}
 	}
 
 	override fun onResume() {

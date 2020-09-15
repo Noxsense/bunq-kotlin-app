@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- ./app/src/main/res/layout/activity_new_payment.xml -->
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
@@ -44,6 +43,8 @@
         android:layout_weight="0.25"
         android:layout_height="match_parent"
         android:padding="10dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        android:spinnerMode="dropdown"
         />
       <EditText
         android:id="@+id/new_payment_pointer_value"
@@ -72,6 +73,8 @@
         android:layout_weight="0.25"
         android:layout_height="match_parent"
         android:padding="10dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        android:spinnerMode="dropdown"
         />
       <EditText
         android:id="@+id/new_payment_amount"

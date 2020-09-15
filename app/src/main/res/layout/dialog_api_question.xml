@@ -6,7 +6,6 @@
   android:layout_height="match_parent"
   android:padding="10sp"
   android:orientation="vertical"
-  android:background="@drawable/roundly_bordered_textcolor"
   >
   <TextView
     android:id="@+id/api_question"

@@ -8,7 +8,7 @@
   android:orientation="vertical"
   >
   <!-- Overview of the last payments.-->
-  <LinearLayout
+  <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:gravity="center_vertical"
     android:layout_width="match_parent"
@@ -18,40 +18,66 @@
     >
     <TextView
       android:id="@+id/greeting"
-      android:gravity="left"
       android:text="@string/greeting"
       android:textStyle="bold"
       android:textSize="@dimen/TextSizeH1"
       android:textColor="@color/bunq_c00"
       android:padding="10dp"
+      android:gravity="left"
       android:layout_width="wrap_content"
       android:layout_height="match_parent"
+      android:layout_gravity="left"
       />
     <TextView
       android:id="@+id/change"
-      android:gravity="right"
       android:text="@string/change"
       android:textStyle="italic"
       android:alpha="0.5"
       android:textSize="@dimen/TextSizeH1"
       android:textColor="@color/bunq_c00"
       android:padding="10dp"
+      android:gravity="right"
       android:layout_width="wrap_content"
       android:layout_height="match_parent"
+      android:layout_gravity="right"
       />
-  </LinearLayout>
-  <TextView
-    android:id="@+id/balances_view"
-    android:gravity="center_vertical"
-    android:text="@string/balances_view"
-    android:padding="10dp"
-    android:textColor="@color/TextColorPrimary"
+  </FrameLayout>
+  <FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="0sp"
     android:layout_weight="0.10"
     android:layout_margin="@dimen/default_margin"
     android:background="@drawable/roundly_bordered_bunq_c03"
-    />
+    >
+    <TextView
+      android:id="@+id/balances_view"
+      android:gravity="center_vertical|left"
+      android:text="@string/balances_view"
+      android:padding="3dp"
+      android:textColor="@color/TextColorPrimary"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:layout_gravity="left"
+      android:layout_margin="@dimen/default_margin"
+      />
+    <TextView
+      android:id="@+id/list_payments_refresh"
+      android:gravity="center_vertical|right"
+      android:padding="@dimen/default_margin"
+      android:alpha="0.9"
+      android:text="@string/list_payments_refresh"
+      android:textSize="@dimen/TextSizePrimary"
+      android:textStyle="bold"
+      android:textColor="@color/bunq_c03"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:layout_margin="@dimen/default_margin"
+      android:layout_gravity="right"
+      />
+  </FrameLayout>
   <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:gravity="center"
@@ -70,19 +96,6 @@
       android:layout_margin="@dimen/default_margin"
       />
   </LinearLayout>
-  <TextView
-    android:id="@+id/list_payments_refresh"
-    android:gravity="center"
-    android:text="@string/list_payments_refresh"
-    android:alpha="0.9"
-    android:textSize="@dimen/TextSizePrimary"
-    android:textStyle="bold"
-    android:textColor="@color/bunq_c05"
-    android:layout_width="match_parent"
-    android:layout_height="0sp"
-    android:layout_weight="0.04"
-    android:layout_margin="3dp"
-    />
   <Button
     android:id="@+id/new_payment_button"
     android:gravity="center"
