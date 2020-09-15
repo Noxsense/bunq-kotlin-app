@@ -9,6 +9,7 @@ import com.bunq.sdk.model.generated.endpoint.Payment
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -139,6 +140,9 @@ class NewPaymentActivity : AppCompatActivity() {
 	}
 
 	protected fun showToast(msg: Any?, duration: Int = Toast.LENGTH_LONG) {
-		Toast.makeText(this.getApplicationContext(), "${msg}", duration).show()
+		Toast.makeText(this.getApplicationContext(), "${msg}", duration).run {
+			setGravity(Gravity.CENTER, 0, 0)
+			show()
+		}
 	}
 }

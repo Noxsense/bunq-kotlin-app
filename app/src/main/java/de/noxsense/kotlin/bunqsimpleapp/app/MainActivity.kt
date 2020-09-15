@@ -1,7 +1,6 @@
 package de.noxsense.kotlin.bunqsimpleapp.app
 
 import com.bunq.sdk.context.BunqContext
-import com.bunq.sdk.exception.BadRequestException
 import com.bunq.sdk.exception.BunqException
 import com.bunq.sdk.model.generated.`object`.Amount
 import com.bunq.sdk.model.generated.endpoint.MonetaryAccountBank
@@ -11,16 +10,17 @@ import com.bunq.sdk.model.generated.endpoint.User
 import android.app.AlertDialog
 import android.app.AlertDialog.Builder
 import android.content.Context
-import android.view.View.OnClickListener
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
@@ -94,41 +94,51 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 	}
 
 	private fun askForApiLogin() {
-		val builder = AlertDialog.Builder(this)
-		val infl = LayoutInflater.from(this)
+		if (dialogLogin == null) {
+			Log.d(TAG, "Initiate Dialog to select a 'Context for Bunq'")
 
-		val view = infl.inflate(R.layout.dialog_api_question, null)
+			val builder = AlertDialog.Builder(this)
+			val infl = LayoutInflater.from(this)
 
-		// set up the buttons.
-		btnLoginExisiting = view.findViewById(R.id.use_existing)
-		btnLoginSandboxNew = view.findViewById(R.id.use_new_sandbox)
-		btnLoginProduction = view.findViewById(R.id.use_production)
-		editLoginProduction = view.findViewById(R.id.api_key)
+			val view = infl.inflate(R.layout.dialog_api_question, null)
 
-		btnLoginExisiting!!.setOnClickListener(this)
-		btnLoginSandboxNew!!.setOnClickListener(this)
-		btnLoginProduction!!.setOnClickListener(this)
+			// set up the buttons.
+			btnLoginExisiting = view.findViewById(R.id.use_existing)
+			btnLoginSandboxNew = view.findViewById(R.id.use_new_sandbox)
+			btnLoginProduction = view.findViewById(R.id.use_production)
+			editLoginProduction = view.findViewById(R.id.api_key)
 
-		builder.setView(view)
-		builder.setCancelable(true)
-		builder.setOnDismissListener{
-			Log.i(TAG, "API login done: Login is '${login}'")
-			try {
-				fetchBung(login)
-			} catch (e: Exception) {
-				fetchBung("") // stay with old things.
-				showToast(e.toString())
+			btnLoginExisiting!!.setOnClickListener(this)
+			btnLoginSandboxNew!!.setOnClickListener(this)
+			btnLoginProduction!!.setOnClickListener(this)
+
+			builder.setView(view)
+			builder.setCancelable(true)
+			builder.setOnDismissListener{
+				Log.i(TAG, "API login done: Login is '${login}'")
+				try {
+					if (login != BunqHandle.LOGIN_FROM_FILE) {
+						fetchBung(login)
+					}
+				} catch (e: Exception) {
+					fetchBung("") // stay with old things.
+					showToast(e.toString())
+				}
+				btnLoginExisiting!!.visibility = View.VISIBLE
+				btnLoginSandboxNew!!.visibility = View.VISIBLE
+				editLoginProduction!!.visibility = View.GONE
 			}
-			btnLoginExisiting!!.visibility = View.VISIBLE
-			btnLoginSandboxNew!!.visibility = View.VISIBLE
-			editLoginProduction!!.visibility = View.GONE
-		}
-		val dialog = builder.create() // returns dialog.
+			val dialog = builder.create() // returns dialog.
 
-		dialog.run {
-			dialogLogin = this // referencing to val.
-			getWindow()?.setBackgroundDrawableResource(
-				R.drawable.dialog_api_question_bg)
+			dialog.run {
+				dialogLogin = this // referencing to val.
+				getWindow()?.setBackgroundDrawableResource(
+					R.drawable.dialog_api_question_bg)
+				dialog.show()
+			}
+		} else {
+			Log.d(TAG, "Reuse Dialog to select a 'Context for Bunq'")
+			val dialog = dialogLogin!!
 			dialog.show()
 		}
 	}
@@ -149,7 +159,11 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 
 	/** Make a quick Toast Note. */
 	protected fun showToast(msg: Any?, duration: Int = Toast.LENGTH_LONG) {
-		Toast.makeText(this.getApplicationContext(), "${msg}", duration).show()
+		Log.i(TAG, "TOAST ($duration): \"$msg\"")
+		Toast.makeText(this.getApplicationContext(), "${msg}", duration).run {
+			setGravity(Gravity.CENTER, 0, 0)
+			show()
+		}
 	}
 
 	override fun onClick(view: View) {
@@ -200,8 +214,18 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 				if (BunqHandle.isOnline()) {
 					Log.i(TAG, "Clicked 'Refresh'.")
 					list_payments_refresh.setAlpha(0.02.toFloat())
-					showToast("Refreshing!")
-					onResume()
+					balances_view.text = "Refreshing..."
+					showToast("Refreshing.")
+					try {
+						fetchBung()
+					} catch (err: Error) {
+						showToast("Error while refreshing!")
+						Log.e(TAG, "Error occurred")
+						Log.e(TAG, err.toString())
+						Log.e(TAG, err.getStackTrace().toString())
+					} catch (exc: Exception) {
+						showToast("Something didn't work well now.")
+					}
 				} else {
 					Log.d(TAG, "Clicked 'Refresh', but offline.")
 					showToast("You are offline.", Toast.LENGTH_SHORT)
@@ -247,6 +271,9 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 
 		// list payments.
 		Log.i(TAG, "Payments reloaded ${payments.size}, displayed: ${list_payments.adapter.count}.")
+
+		// we initiated it in this.
+		@Suppress("UNCHECKED_CAST")
 		(list_payments.adapter as ArrayAdapter<Payment>).run {
 			this.notifyDataSetChanged()
 		}
@@ -303,8 +330,8 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 				showToast("No Session active! You cannot make a new payment now.")
 			}
 		} catch (e: Exception) {
-			showToast("Cannot make a new payment because of ${e::class.simpleName}")
 			Log.e(TAG, e.toString())
+			showToast("Cannot make a new payment because of ${e::class.simpleName}")
 		}
 	}
 
@@ -318,7 +345,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 			) {
 				override fun getView(p0: Int, view: View?, parent: ViewGroup) : View {
 					Log.d(TAG, "View Payment ${p0 + 1} / ${getCount()}")
-					return paymentToView(parent, this.getItem(p0))
+					return paymentToView(parent, view, this.getItem(p0)!!)
 				}
 			}
 		} catch (e: IllegalArgumentException) {
@@ -327,7 +354,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 
 		Log.d(TAG, "Add OnItemClickListener")
 		list_payments.setOnItemClickListener { _ , view, pos, _ ->
-			Log.d(TAG, "Clicked position $pos, on $view: ${payments.get(pos)}")
+			Log.d(TAG, "Clicked position $pos, on $view: ${payments.get(pos).getId()}")
 
 			val expandable: View
 				= view.findViewById(R.id.list_payment_expanded)
@@ -347,13 +374,14 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 	 * +----------------------------------+
 	 * |Description                       |
 	 * +==================================+ */
-	private fun paymentToView(parent: ViewGroup, payment: Payment?) : View {
+	private fun paymentToView(parent: ViewGroup, view: View?, payment: Payment) : View {
+		Log.d(TAG, "Payment to View!")
 
-		Log.d(TAG, "Initate Custom View.")
-		val li = LayoutInflater.from(this)
-		val item = li.inflate(R.layout.list_item_payment, parent, false)
-
-		if (payment == null) return item
+		// reuse view or inflate a new view.
+		val item: View = view ?: LayoutInflater.from(this).run {
+			Log.i(TAG, "Inflating a new view.")
+			inflate(R.layout.list_item_payment, parent, false)
+		}
 
 		val amount = payment.getAmount()
 		val amountValue = amount.getValue().toDouble()
@@ -365,8 +393,8 @@ class MainActivity : AppCompatActivity(), OnClickListener {
 			paid -> R.drawable.roundly_bordered_bunq_payment // dark red
 			else -> R.drawable.roundly_bordered_bunq_request // dark green
 		})).also {
-			Log.d(TAG, "Coloured the payment list item accordingly "
-				+ "to the value ${paid} \u21d2 ${item.getBackground()}.")
+			Log.d(TAG, "Coloured the payment list item: "
+				+ "as paid (${paid}) => ${item.getBackground()}.")
 		}
 
 		(item.findViewById(R.id.list_payment_amount) as TextView)
