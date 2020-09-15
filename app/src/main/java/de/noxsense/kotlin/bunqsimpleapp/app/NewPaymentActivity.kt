@@ -91,11 +91,18 @@ class NewPaymentActivity : AppCompatActivity() {
 				Log.w(TAG, e.toString())
 
 				when {
+					// wrong amount.
+					e is java.lang.NumberFormatException -> {
+						new_payment_error.text = "You may have inserted a wrong number: (${new_payment_amount.text})"
+						new_payment_error.visibility = View.VISIBLE
+						showToast("Payment failed")
+					}
+
 					// Show Bunq Error, maybe they can be corrected.
 					e is BunqException || e is ApiException -> {
-						val lines = e.message!!.split("\\n\\|\\r")
+						val lines = e.message!!.trimIndent().lines().drop(2)
 
-						new_payment_error.text = lines[lines.size - 1]
+						new_payment_error.text = lines.joinToString("\n")
 						new_payment_error.visibility = View.VISIBLE
 						showToast("Payment failed")
 					}
